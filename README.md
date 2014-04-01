@@ -47,6 +47,7 @@ Dolph will take an options hash. The options are:
 
  * `prefix`: the Redis key prefix to use
  * `keyFunction`: a function which will map a request into a string. The string should map a single entity which you would like to apply the limiter to. Using a userId is a good option if the limit is per user. Use a clientId if you will limit by clients. If it's a combination, concatenate the values into a single string. The function should take the form `function(req) { }`.
+ * `applyLimit`: a function which should return true when the limit should be applied, false otherwise. The function should take the form `function(req) { }`.
  * `expiry`: a time in seconds before the rate limit is reset. Can be a function with the form `function(req) { }`. Defaults to 60 seconds.
  * `limit`: the number of calls that can occur within the limit (as set by the expiry). Can be a function with the form `function(req) { }`. Defaults to 100.
  * `redisClient`: a reference to a redisClient (optional)

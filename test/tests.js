@@ -34,6 +34,25 @@ describe('dolph', function() {
 
   });
 
+  it('should not apply limits when the applyLimit function returns false', function(done) {
+    var now = Date.now();
+
+    var middleware = dolph({
+      prefix: 'dolphtest:',
+      applyLimit: function() { return false; },
+      keyFunction: function() { assert(false); }
+    });
+
+    var response = makeResponse();
+    middleware({}, response, function(err) {
+      if(err) return done(err);
+
+      done();
+    });
+
+  });
+
+
   it('the remaining count should go down as expected', function(done) {
     var now = Date.now();
 
