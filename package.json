@@ -23,6 +23,7 @@
     "redis": "^0.10.1"
   },
   "devDependencies": {
-    "mocha": "^1.18.2"
+    "mocha": "^1.18.2",
+    "retire": "latest"
   }
 }
