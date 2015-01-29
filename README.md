@@ -53,6 +53,31 @@ Dolph will take an options hash. The options are:
  * `redisClient`: a reference to a redisClient (optional)
  * `redis`: If a redisClient is not passed in, Dolph will instantiate it's own redis client. This hash allows the `port`, `host` and `options` of the client to be specified.
 
+### Using the rate limiter without the middleware
+
+Sometimes it's useful to perform rate limiting outside of a middleware. For this reason, Dolph exposes functionality to do this.
+
+```
+var rateLimiter = require('dolph').rateLimiter({
+  prefix: 'rate:',
+  redis: { host: 'localhost', port: 6379 },  // Default values, not required
+  redisClient: { } // Or, BYO redis client to the party (useful if you're using Sentinel)
+});
+
+var key = 'thespotter';
+rateLimiter(key, expiry, function(err, count, ttl) {
+  if (err) return callback(err);
+
+  // `count` is how many times the key has been called within the window period
+  // `ttl` is how long until a new window period starts
+
+  // Do whatever you want with this information here....
+
+});
+
+```
+
+
 ### Requirements
 
 Dolph needs Redis 2.6.0 or above and Express 3.
