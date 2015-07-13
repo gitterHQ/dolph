@@ -4,3 +4,4 @@ node_js:
 services:
   - redis-server
 install: make ci
+sudo: false
