@@ -88,7 +88,7 @@ describe('dolph', function() {
 
   });
 
-  it('the middleware should throw a 403 when the limit is reached', function(done) {
+  it('the middleware should throw a 429 when the limit is reached', function(done) {
     var now = Date.now();
 
     var middleware = dolph({
@@ -107,7 +107,8 @@ describe('dolph', function() {
       response = makeResponse();
       middleware({}, response, function(err) {
         assert(err);
-        assert.equal(err.statusCode, 403);
+        assert.equal(err.status, 429);
+        assert.equal(err.statusCode, 429);
         assert(err.rateLimit);
 
         done();
@@ -152,4 +153,49 @@ describe('dolph', function() {
     });
 
   });
+
+  it('should allow 100 calls and the 101st should be limited', function(done) {
+    var now = Date.now();
+
+    var middleware = dolph({
+      prefix: 'dolphtest:',
+      keyFunction: function() { return "x" + now; }
+    });
+
+    var count = 0;
+    var start = Date.now();
+    var resetTime;
+
+    (function nextIteration() {
+      count++;
+      if (count === 102) return done();
+
+      var response = makeResponse();
+      middleware({}, response, function(err) {
+        if (count === 101) {
+          assert(err);
+          assert.equal(err.status, 429);
+          assert.equal(err.statusCode, 429);
+          assert(err.rateLimit);
+        } else {
+          assert(!err);
+        }
+
+        if (count === 1) {
+          resetTime = response.headers['X-RateLimit-Reset'];
+        } else {
+          assert(resetTime >= response.headers['X-RateLimit-Reset'] - 1000);
+          assert(resetTime < response.headers['X-RateLimit-Reset'] + 1000);
+        }
+
+        assert.equal(response.headers['X-RateLimit-Limit'], 100);
+        assert.equal(response.headers['X-RateLimit-Remaining'], Math.max(0, 100 - count));
+
+        nextIteration();
+      });
+
+    })();
+
+  });
+
 });
